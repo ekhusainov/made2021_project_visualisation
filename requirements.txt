@@ -1,0 +1,5 @@
+streamlit-agraph
+SPARQLWrapper==1.8.5
+streamlit==1.2.0
+pyvis==0.1.9
+matplotlib==3.5.0
