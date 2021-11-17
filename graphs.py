@@ -6,7 +6,7 @@ import streamlit as st
 
 
 def simple_graph(physics):
-    nx_graph = nx.cycle_graph(15)
+    nx_graph = nx.cycle_graph(20)
     nx_graph.nodes[1]["title"] = "Number 1"
     nx_graph.nodes[1]["group"] = 1
     nx_graph.nodes[3]["title"] = "I belong to a different group!"
@@ -21,4 +21,4 @@ def simple_graph(physics):
     nt.from_nx(nx_graph)
     if physics:
         nt.show_buttons(filter_=["physics"])
-    nt.show("test.html")
+    nt.show("html/simple_graph.html")
