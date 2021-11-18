@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 from pyvis.network import Network
 import streamlit as st
 
+FILEPATH_TO_SIMPLE_BASELINE = "data/simple_baseline.txt"
+
 
 def simple_graph(physics):
     nx_graph = nx.cycle_graph(20)
@@ -22,3 +24,12 @@ def simple_graph(physics):
     if physics:
         nt.show_buttons(filter_=["physics"])
     nt.show("html/simple_graph.html")
+
+
+def simple_baseline(physics):
+    graph = nx.read_weighted_edgelist(FILEPATH_TO_SIMPLE_BASELINE, encoding="utf-8")
+    nt = Network("800px","800px", notebook=True, heading="Simple baseline")
+    nt.from_nx(graph)
+    if physics:
+        nt.show_buttons(filter_=["physics"])
+    nt.show("html/simple_baseline.html")
