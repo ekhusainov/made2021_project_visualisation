@@ -2,7 +2,11 @@
 MADE2021. Final project.
 """
 
-from graphs import simple_graph, simple_baseline, tj_baseline, vc_baseline
+from graphs import (
+    simple_graph,
+    tj_baseline,
+    vc_baseline,
+)
 import streamlit.components.v1 as components
 import streamlit as st
 
