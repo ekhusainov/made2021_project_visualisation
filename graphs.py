@@ -9,7 +9,7 @@ FILEPATH_TO_SIMPLE_BASELINE = "data/simple_baseline.txt"
 FILEPATH_TO_TJ_BASELINE = "data/tj_baseline.gml"
 
 
-def simple_graph(physics):
+def simple_graph(physics=False):
     nx_graph = nx.cycle_graph(20)
     nx_graph.nodes[1]["title"] = "Number 1"
     nx_graph.nodes[1]["group"] = 1
@@ -28,7 +28,7 @@ def simple_graph(physics):
     nt.show("html/simple_graph.html")
 
 
-def simple_baseline(physics):
+def simple_baseline(physics=False):
     graph = nx.read_weighted_edgelist(
         FILEPATH_TO_SIMPLE_BASELINE, encoding="utf-8")
     nt = Network("800px", "800px", notebook=True, heading="Simple baseline")
@@ -38,7 +38,7 @@ def simple_baseline(physics):
     nt.show("html/simple_baseline.html")
 
 
-def tj_baseline(physics):
+def tj_baseline(physics=False):
     graph = nx.read_gml(FILEPATH_TO_TJ_BASELINE)
 
     for node in graph.nodes():

@@ -19,22 +19,22 @@ def main():
     st.title("Альфа версия")
     choose_graph = st.sidebar.selectbox(
         "Choose graph", (TJ_BASELINE, SIMPLE_EXAMPLE, SIMPLE_BASELINE, ))
-    physics = st.sidebar.checkbox("add physics interactivity?")
+    # physics = st.sidebar.checkbox("add physics interactivity?")
 
     if choose_graph == SIMPLE_EXAMPLE:
-        simple_graph(physics)
+        simple_graph()
         with open(FILEPATH_HTML_TO_SIMPLE_GRAPH, "r") as file:
             source_code = file.read()
         components.html(source_code, height=900, width=900)
 
     elif choose_graph == SIMPLE_BASELINE:
-        simple_baseline(physics)
+        simple_baseline()
         with open(FILEPATH_HTML_TO_SIMPLE_BASELINE, "r", encoding="utf-8") as file:
             source_code = file.read()
         components.html(source_code, height=900, width=900)
 
     elif choose_graph == TJ_BASELINE:
-        tj_baseline(physics)
+        tj_baseline()
         with open(FILEPATH_HTML_TO_TJ_BASELINE, "r", encoding="utf-8") as file:
             source_code = file.read()
         components.html(source_code, height=900, width=900)
