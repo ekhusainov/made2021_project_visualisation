@@ -7,6 +7,7 @@ import streamlit as st
 
 FILEPATH_TO_SIMPLE_BASELINE = "data/simple_baseline.txt"
 FILEPATH_TO_TJ_BASELINE = "data/tj_baseline.gml"
+FILEPATH_TO_VC_BASELINE = "data/vc_posts.gml"
 
 
 def simple_graph(physics=False):
@@ -53,3 +54,14 @@ def tj_baseline(physics=False):
     if physics:
         nt.show_buttons(filter_=["physics"])
     nt.show("html/tj_baseline.html")
+
+
+def vc_baseline(physics=False):
+    graph = nx.read_gml(FILEPATH_TO_VC_BASELINE)
+
+    nt = Network("800px", "800px", notebook=True, heading="VC baseline")
+    nt.barnes_hut()
+    nt.from_nx(graph)
+    if physics:
+        nt.show_buttons(filter_=["physics"])
+    nt.show("html/vc_baseline.html")
