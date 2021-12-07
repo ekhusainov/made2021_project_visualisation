@@ -42,12 +42,13 @@ def tj_baseline(physics):
     graph = nx.read_gml(FILEPATH_TO_TJ_BASELINE)
 
     for node in graph.nodes():
-        graph.nodes[node]["size"] = max(
-            5, graph.nodes[node]["adjusted_node_size"] / 5)
+        # graph.nodes[node]["size"] = max(
+        #     5, graph.nodes[node]["adjusted_node_size"] / 5)
+        graph.nodes[node]["size"] = graph.nodes[node]["adjusted_node_size"]
         graph.nodes[node]["color"] = graph.nodes[node]["modularity_color"]
 
     nt = Network("800px", "800px", notebook=True, heading="TJ baseline")
-
+    nt.barnes_hut()
     nt.from_nx(graph)
     if physics:
         nt.show_buttons(filter_=["physics"])
