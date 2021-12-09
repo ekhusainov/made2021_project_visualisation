@@ -8,6 +8,17 @@ import streamlit as st
 FILEPATH_TO_SIMPLE_BASELINE = "data/simple_baseline.txt"
 FILEPATH_TO_TJ_BASELINE = "data/tj_baseline.gml"
 FILEPATH_TO_VC_BASELINE = "data/vc_posts.gml"
+FILEPATH_TO_DTF_BASELINE = "data/dtf_posts2.gml"
+FILEPATH_HTML_TO_TJ_BASELINE = "html/tj_baseline.html"
+FILEPATH_HTML_TO_VC_BASELINE = "html/vc_baseline.html"
+FILEPATH_HTML_TO_DTF_BASELINE = "html/dtf_baseline.html"
+
+
+def statistic_graph(graph):
+    edge_count = len(graph.edges())
+    node_count = len(graph.nodes())
+    st.sidebar.markdown(f"Количество нод: {node_count}")
+    st.sidebar.markdown(f"Количество рёбер: {edge_count}")
 
 
 def simple_graph(physics=False):
@@ -47,7 +58,7 @@ def tj_baseline(physics=False):
         #     5, graph.nodes[node]["adjusted_node_size"] / 5)
         graph.nodes[node]["size"] = graph.nodes[node]["adjusted_node_size"]
         graph.nodes[node]["color"] = graph.nodes[node]["modularity_color"]
-
+    statistic_graph(graph)
     nt = Network("800px", "800px", notebook=True, heading="TJ baseline")
     nt.barnes_hut()
     nt.from_nx(graph)
@@ -58,10 +69,21 @@ def tj_baseline(physics=False):
 
 def vc_baseline(physics=False):
     graph = nx.read_gml(FILEPATH_TO_VC_BASELINE)
-
+    statistic_graph(graph)
     nt = Network("800px", "800px", notebook=True, heading="VC baseline")
     nt.barnes_hut()
     nt.from_nx(graph)
     if physics:
         nt.show_buttons(filter_=["physics"])
     nt.show("html/vc_baseline.html")
+
+
+def dtf_baseline(physics=False):
+    graph = nx.read_gml(FILEPATH_TO_DTF_BASELINE)
+    statistic_graph(graph)
+    nt = Network("800px", "800px", notebook=True, heading="DTF baseline")
+    nt.barnes_hut()
+    nt.from_nx(graph)
+    if physics:
+        nt.show_buttons(filter_=["physics"])
+    nt.show(FILEPATH_HTML_TO_DTF_BASELINE)
