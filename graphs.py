@@ -26,7 +26,7 @@ def statistic_graph(graph):
 
 def main_statistic():
     st.sidebar.markdown("***")
-    st.sidebar.markdown("**Общая информация о данных:**")
+    st.sidebar.markdown("**Общая информация о данных.**")
     info_about = pd.DataFrame(
         np.array([[
             17,
@@ -44,23 +44,25 @@ def main_statistic():
 
     labels = "VC_posts", "TJ_posts", "DTF_posts", "VC_comments", "TJ_comments", "DTF_comments"
     sizes = [17, 10, 15, 4.9, 13, 16.3]
-    explode = (0, 0.1, 0, 0, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
+    explode = (0, 0.1, 0, 0, 0, 0)
 
     fig1, ax1 = plt.subplots()
     ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
             shadow=True, startangle=90)
-    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    ax1.axis('equal')
     st.sidebar.markdown(f"Общий размер: {sum(sizes)} Гб")
     st.sidebar.pyplot(fig1)
 
     # labels = "VC_posts", "TJ_posts", "DTF_posts", "VC_comments", "TJ_comments", "DTF_comments"
     sizes_count = [199188, 298695, 472045, 113826, 264318, 293516]
-    explode_count = (0, 0.1, 0, 0, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
+    # only "explode" the 2nd slice (i.e. 'Hogs')
+    explode_count = (0, 0.1, 0, 0, 0, 0)
 
     fig1_count, ax1_count = plt.subplots()
     ax1_count.pie(sizes_count, explode=explode_count, labels=labels, autopct='%1.1f%%',
-            shadow=True, startangle=90)
-    ax1_count.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+                  shadow=True, startangle=90)
+    # Equal aspect ratio ensures that pie is drawn as a circle.
+    ax1_count.axis('equal')
     st.sidebar.markdown(f"Общие количество файлов: {sum(sizes_count)}")
     st.sidebar.pyplot(fig1_count)
 
