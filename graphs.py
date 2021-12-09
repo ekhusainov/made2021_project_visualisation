@@ -1,4 +1,5 @@
 import ast
+from random import sample
 
 import networkx as nx
 import numpy as np
@@ -20,7 +21,7 @@ FILEPATH_HTML_TO_VC_BASELINE = "html/vc_baseline.html"
 FILEPATH_HTML_TO_DTF_BASELINE = "html/dtf_baseline.html"
 COMP_TOPIC = "data/comp_topic_.csv"
 KEY_WORDS = "data/keywords_.npy"
-
+MAX_WORD_IN_TITLE = 6
 
 def statistic_graph(graph):
     edge_count = len(graph.edges())
@@ -105,7 +106,9 @@ def tj_baseline(physics=False):
         current_dict = ast.literal_eval(
             list(comp[comp["companies"] == node]["probs"].items())[0][1])
         better_key = max(current_dict.items(), key=lambda x: x[1])[0]
-        title = repr(list(key_word[better_key]))
+        title = list(key_word[better_key])
+        title = sample(title, MAX_WORD_IN_TITLE)
+        title = repr(title)
         graph.nodes[node]["title"] = title
     #
     for node in graph.nodes():
