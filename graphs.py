@@ -1,9 +1,12 @@
 import networkx as nx
+import numpy as np
+import pandas as pd
 
 import matplotlib.pyplot as plt
 from networkx.classes import graph
 from pyvis.network import Network
 import streamlit as st
+import matplotlib.pyplot as plt
 
 FILEPATH_TO_SIMPLE_BASELINE = "data/simple_baseline.txt"
 FILEPATH_TO_TJ_BASELINE = "data/tj_baseline.gml"
@@ -19,6 +22,49 @@ def statistic_graph(graph):
     node_count = len(graph.nodes())
     st.sidebar.markdown(f"Количество нод: {node_count}")
     st.sidebar.markdown(f"Количество рёбер: {edge_count}")
+
+
+def main_statistic():
+    st.markdown("""---""")
+    st.sidebar.markdown("Общая информация о данных:")
+    info_about = pd.DataFrame(
+        np.array([[
+            17,
+            10,
+            15,
+        ]]),
+        columns=[
+            "VC",
+            "TJ",
+            "DTF",
+        ]
+    )
+    # info_about = np.array([1, 2, 3])
+    # st.sidebar.bar_chart(info_about)
+
+    labels = "VC_posts", "TJ_posts", "DTF_posts", "VC_comments", "TJ_comments", "DTF_comments"
+    sizes = [17, 10, 15, 4.9, 13, 16.3]
+    explode = (0, 0.1, 0, 0, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
+
+    fig1, ax1 = plt.subplots()
+    ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
+            shadow=True, startangle=90)
+    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    st.sidebar.markdown(f"Общий размер {sum(sizes)} Гб")
+    st.sidebar.pyplot(fig1)
+
+    # labels = "VC_posts", "TJ_posts", "DTF_posts", "VC_comments", "TJ_comments", "DTF_comments"
+    sizes_count = [199188, 298695, 472045, 113826, 264318, 293516]
+    explode_count = (0, 0.1, 0, 0, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
+
+    fig1_count, ax1_count = plt.subplots()
+    ax1_count.pie(sizes_count, explode=explode_count, labels=labels, autopct='%1.1f%%',
+            shadow=True, startangle=90)
+    ax1_count.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    st.sidebar.markdown(f"Общие количество файлов {sum(sizes_count)}")
+    st.sidebar.pyplot(fig1_count)
+
+    # st.sidebar.pyplot(info_about)
 
 
 def simple_graph(physics=False):
@@ -40,16 +86,6 @@ def simple_graph(physics=False):
     nt.show("html/simple_graph.html")
 
 
-# def simple_baseline(physics=False):
-#     graph = nx.read_weighted_edgelist(
-#         FILEPATH_TO_SIMPLE_BASELINE, encoding="utf-8")
-#     nt = Network("800px", "800px", notebook=True, heading="Simple baseline")
-#     nt.from_nx(graph)
-#     if physics:
-#         nt.show_buttons(filter_=["physics"])
-#     nt.show("html/simple_baseline.html")
-
-
 def tj_baseline(physics=False):
     graph = nx.read_gml(FILEPATH_TO_TJ_BASELINE)
 
@@ -59,6 +95,7 @@ def tj_baseline(physics=False):
         graph.nodes[node]["size"] = graph.nodes[node]["adjusted_node_size"]
         graph.nodes[node]["color"] = graph.nodes[node]["modularity_color"]
     statistic_graph(graph)
+    main_statistic()
     nt = Network("800px", "800px", notebook=True, heading="TJ baseline")
     nt.barnes_hut()
     nt.from_nx(graph)
@@ -70,6 +107,7 @@ def tj_baseline(physics=False):
 def vc_baseline(physics=False):
     graph = nx.read_gml(FILEPATH_TO_VC_BASELINE)
     statistic_graph(graph)
+    main_statistic()
     nt = Network("800px", "800px", notebook=True, heading="VC baseline")
     nt.barnes_hut()
     nt.from_nx(graph)
@@ -81,6 +119,7 @@ def vc_baseline(physics=False):
 def dtf_baseline(physics=False):
     graph = nx.read_gml(FILEPATH_TO_DTF_BASELINE)
     statistic_graph(graph)
+    main_statistic()
     nt = Network("800px", "800px", notebook=True, heading="DTF baseline")
     nt.barnes_hut()
     nt.from_nx(graph)

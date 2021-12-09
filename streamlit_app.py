@@ -11,6 +11,7 @@ from graphs import (
 import streamlit.components.v1 as components
 import streamlit as st
 
+import numpy as np
 import networkx as nx
 
 FILEPATH_HTML_TO_SIMPLE_GRAPH = "html/simple_graph.html"
@@ -30,9 +31,10 @@ DTF_BASELINE = "DTF baseline"
 
 
 def main():
-    st.title("Альфа версия")
+    st.title("Бета-версия")
+
     choose_graph = st.sidebar.selectbox(
-        "Choose graph",
+        "Выберите граф",
         (
             TJ_BASELINE,
             VC_BASELINE,
@@ -40,6 +42,7 @@ def main():
             SIMPLE_EXAMPLE,
         )
     )
+
     # physics = st.sidebar.checkbox("add physics interactivity?")
 
     if choose_graph == SIMPLE_EXAMPLE:
