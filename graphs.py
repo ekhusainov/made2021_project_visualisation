@@ -25,8 +25,8 @@ def statistic_graph(graph):
 
 
 def main_statistic():
-    st.markdown("""---""")
-    st.sidebar.markdown("Общая информация о данных:")
+    st.sidebar.markdown("***")
+    st.sidebar.markdown("**Общая информация о данных:**")
     info_about = pd.DataFrame(
         np.array([[
             17,
@@ -50,7 +50,7 @@ def main_statistic():
     ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
             shadow=True, startangle=90)
     ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-    st.sidebar.markdown(f"Общий размер {sum(sizes)} Гб")
+    st.sidebar.markdown(f"Общий размер: {sum(sizes)} Гб")
     st.sidebar.pyplot(fig1)
 
     # labels = "VC_posts", "TJ_posts", "DTF_posts", "VC_comments", "TJ_comments", "DTF_comments"
@@ -61,7 +61,7 @@ def main_statistic():
     ax1_count.pie(sizes_count, explode=explode_count, labels=labels, autopct='%1.1f%%',
             shadow=True, startangle=90)
     ax1_count.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-    st.sidebar.markdown(f"Общие количество файлов {sum(sizes_count)}")
+    st.sidebar.markdown(f"Общие количество файлов: {sum(sizes_count)}")
     st.sidebar.pyplot(fig1_count)
 
     # st.sidebar.pyplot(info_about)
