@@ -1,3 +1,5 @@
+import ast
+
 import networkx as nx
 import numpy as np
 import pandas as pd
@@ -8,6 +10,7 @@ from pyvis.network import Network
 import streamlit as st
 import matplotlib.pyplot as plt
 
+
 FILEPATH_TO_SIMPLE_BASELINE = "data/simple_baseline.txt"
 FILEPATH_TO_TJ_BASELINE = "data/tj_baseline.gml"
 FILEPATH_TO_VC_BASELINE = "data/vc_posts.gml"
@@ -15,6 +18,8 @@ FILEPATH_TO_DTF_BASELINE = "data/dtf_posts2.gml"
 FILEPATH_HTML_TO_TJ_BASELINE = "html/tj_baseline.html"
 FILEPATH_HTML_TO_VC_BASELINE = "html/vc_baseline.html"
 FILEPATH_HTML_TO_DTF_BASELINE = "html/dtf_baseline.html"
+COMP_TOPIC = "data/comp_topic_.csv"
+KEY_WORDS = "data/keywords_.npy"
 
 
 def statistic_graph(graph):
@@ -90,7 +95,19 @@ def simple_graph(physics=False):
 
 def tj_baseline(physics=False):
     graph = nx.read_gml(FILEPATH_TO_TJ_BASELINE)
+    #
+    comp = pd.read_csv(COMP_TOPIC)
+    key_word = np.load(KEY_WORDS)
+    for node in graph.nodes():
+        if node not in list(comp["companies"]):
+            continue
 
+        current_dict = ast.literal_eval(
+            list(comp[comp["companies"] == node]["probs"].items())[0][1])
+        better_key = max(current_dict.items(), key=lambda x: x[1])[0]
+        title = repr(list(key_word[better_key]))
+        graph.nodes[node]["title"] = title
+    #
     for node in graph.nodes():
         # graph.nodes[node]["size"] = max(
         #     5, graph.nodes[node]["adjusted_node_size"] / 5)
