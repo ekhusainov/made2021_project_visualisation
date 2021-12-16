@@ -18,7 +18,7 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 # import plotly.figure_factory as ff
 from plotly.tools import FigureFactory as ff
-import scipy
+# import scipy
 
 FILEPATH_TO_SIMPLE_BASELINE = "data/simple_baseline.txt"
 FILEPATH_TO_TJ_BASELINE = "data/tj_baseline.gml"
