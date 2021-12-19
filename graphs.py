@@ -21,15 +21,15 @@ from plotly.tools import FigureFactory as ff
 # import scipy
 
 FILEPATH_TO_SIMPLE_BASELINE = "data/simple_baseline.txt"
-FILEPATH_TO_TJ_BASELINE = "data/tj_baseline.gml"
+FILEPATH_TO_TJ_BASELINE = "data/G_tj_upd_upd.gml"
 FILEPATH_TO_VC_BASELINE = "data/vc_posts.gml"
 FILEPATH_TO_DTF_BASELINE = "data/dtf_posts2.gml"
-FILEPATH_TO_TJ_SENTIMENT = "data/tj_companies_sent.csv"
+FILEPATH_TO_TJ_SENTIMENT = "data/tj_sent_upd.csv"
 FILEPATH_HTML_TO_TJ_BASELINE = "html/tj_baseline.html"
 FILEPATH_HTML_TO_VC_BASELINE = "html/vc_baseline.html"
 FILEPATH_HTML_TO_DTF_BASELINE = "html/dtf_baseline.html"
-COMP_TOPIC = "data/comp_topic_.csv"
-KEY_WORDS = "data/keywords_.npy"
+COMP_TOPIC = "data/tj_topics_upd.csv"
+KEY_WORDS = "data/tj_keywords_upd.npy"
 MAX_WORD_IN_TITLE = 6
 GRAPH_CLUSTERS = "Кластеры"
 GRAPH_SENTIMENT = "Анализ тональности"
@@ -134,12 +134,19 @@ def tj_baseline(physics=False):
             continue
 
         current_dict = ast.literal_eval(
-            list(comp[comp["companies"] == node]["probs"].items())[0][1])
+            list(comp[comp["companies"] == node]["probs_"].items())[0][1])
+        try:
+            del current_dict["others"]
+        except KeyError:
+            pass
         better_key = max(current_dict.items(), key=lambda x: x[1])[0]
-        title = list(key_word[better_key])
-        title = sample(title, MAX_WORD_IN_TITLE)
-        title = repr(title)
-        graph.nodes[node]["title"] = title
+        try:
+            title = list(key_word[better_key])
+            # title = sample(title, MAX_WORD_IN_TITLE)
+            title = repr(title)
+            graph.nodes[node]["title"] = title
+        except IndexError:
+            pass
     #
     for node in graph.nodes():
         # graph.nodes[node]["size"] = max(
@@ -167,8 +174,8 @@ def tj_baseline(physics=False):
                         int_to_hex_for_rgb(
                             new_red) + int_to_hex_for_rgb(new_green) + int_to_hex_for_rgb(new_blue)
                     graph.nodes[node]["color"] = new_rgb_color
-                    print(f"Node: {node}")
-                    print(f"New color: {new_rgb_color}")
+                    # print(f"Node: {node}")
+                    # print(f"New color: {new_rgb_color}")
                 except ValueError:
                     graph.nodes[node]["color"] = "#0000ff"
                 # print(neu_neg_pos)

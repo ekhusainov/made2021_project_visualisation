@@ -25,13 +25,13 @@ FILEPATH_TO_VC_BASELINE = "data/vc_posts.gml"
 FILEPATH_TO_DTF_BASELINE = "data/dtf_posts2.gml"
 SIMPLE_EXAMPLE = "Simple example"
 SIMPLE_BASELINE = "Simple baseline"
-TJ_BASELINE = "TJ baseline"
+TJ_BASELINE = "TJ"
 VC_BASELINE = "VC baseline"
 DTF_BASELINE = "DTF baseline"
 
 
 def main():
-    st.title("Бета-версия")
+    # st.title("Бета-версия")
 
     choose_graph = st.sidebar.selectbox(
         "Выберите граф",
