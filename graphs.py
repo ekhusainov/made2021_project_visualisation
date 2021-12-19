@@ -50,9 +50,9 @@ def statistic_graph(graph):
 def add_adv_attrs(node_selector):
     adv_attr_data = pd.read_csv(TJ_ADV_ATTR)
     adv_attr_data = adv_attr_data[adv_attr_data["companies"] == node_selector]
-    comments_count = adv_attr_data["commentsCount"].item()
-    hits_count = adv_attr_data["hitsCount"].item()
-    likes = adv_attr_data["likes"].item()
+    comments_count = round(adv_attr_data["commentsCount"].item(), 4)
+    hits_count = round(adv_attr_data["hitsCount"].item(), 4)
+    likes = round(adv_attr_data["likes"].item(), 4)
     st.sidebar.markdown(f"Комментов в среднем:\n{comments_count}")
     st.sidebar.markdown(f"Посещений в среднем:\n{hits_count}")
     st.sidebar.markdown(f"Лайков в среднем:\n{likes}")
@@ -125,6 +125,9 @@ def choose_node(node_selector, graph):
         new_graph.add_edge(node_selector, node_neighbor)
         for key, value in graph.nodes[node_neighbor].items():
             new_graph.nodes[node_neighbor][key] = value
+
+    for node in new_graph.nodes():
+        new_graph.nodes[node]["size"] = max(new_graph.nodes[node]["size"], 10)
 
     return new_graph
 
@@ -284,7 +287,7 @@ def tj_baseline(physics=False):
     nt.barnes_hut()
     nt.from_nx(graph)
     if node_selector != ALL_NODES:
-        nt.hrepulsion(central_gravity=5)
+        nt.hrepulsion(central_gravity=2)
     if physics:
         nt.show_buttons(filter_=["physics"])
     nt.show("html/tj_baseline.html")
