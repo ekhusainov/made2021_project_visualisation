@@ -134,7 +134,7 @@ def tj_baseline(physics=False):
             continue
 
         current_dict = ast.literal_eval(
-            list(comp[comp["companies"] == node]["probs_"].items())[0][1])
+            list(comp[comp["companies"] == node]["probs_sort"].items())[0][1])
         try:
             del current_dict["others"]
         except KeyError:
@@ -185,17 +185,38 @@ def tj_baseline(physics=False):
 
     statistic_graph(graph)
     main_statistic()
-    nt = Network("800px", "800px", notebook=True, heading="TJ baseline")
+    nt = Network("800px", "800px", notebook=True, heading="TJournal")
     nt.barnes_hut()
     nt.from_nx(graph)
     if physics:
         nt.show_buttons(filter_=["physics"])
     nt.show("html/tj_baseline.html")
 
-    # node_selector = st.selectbox(
-    #     "Выберите ноду",
-    #     list(comp["companies"])
-    # )
+    node_selector = st.sidebar.selectbox(
+        "Выберите ноду",
+        list(comp["companies"])
+    )
+    # node_selector
+    init_sent_data = pd.read_csv(FILEPATH_TO_TJ_SENTIMENT)
+    neutral_value = init_sent_data[init_sent_data["companies"]
+                                   == node_selector]["neutral"].item()
+    positive_value = init_sent_data[init_sent_data["companies"]
+                                    == node_selector]["positive"].item()
+    negative_value = init_sent_data[init_sent_data["companies"]
+                                    == node_selector]["negative"].item()
+
+    labels = ["neutral", "positive", "negative"]
+    sizes_context = [neutral_value, positive_value, negative_value]
+    explode = (0, 0.1, 0)
+
+    # fig1, ax1 = plt.subplots(figsize=(0.5, 0.5))
+    fig1, ax1 = plt.subplots()
+    ax1.pie(sizes_context, explode=explode, labels=labels, autopct='%1.1f%%',
+            shadow=True, startangle=90, colors=["blue", "green", "red"])
+    ax1.axis('equal')
+    # st.sidebar.markdown(f"Общий размер: {sum(sizes)} Гб")
+    st.sidebar.pyplot(fig1)
+
     # current_dict = ast.literal_eval(
     #     list(comp[comp["companies"] == node_selector]["probs"].items())[0][1])
     # st.title(repr(current_dict))
