@@ -1,6 +1,7 @@
 import ast
 from random import sample
 from math import floor
+from altair.vegalite.v4.api import layer
 
 import networkx as nx
 from networkx.algorithms.connectivity.kcutsets import all_node_cuts
@@ -45,6 +46,67 @@ def statistic_graph(graph):
     node_count = len(graph.nodes())
     st.sidebar.markdown(f"Количество нод: {node_count}")
     st.sidebar.markdown(f"Количество рёбер: {edge_count}")
+
+
+def add_topic_bars(node_selector, new_graph):
+    comp = pd.read_csv(TJ_COMP_TOPIC)
+    key_word = np.load(TJ_KEY_WORDS)
+    adv_attr_data = pd.read_csv(TJ_ADV_ATTR)
+    
+    for node in new_graph.nodes():
+        adv_attr_data_node = adv_attr_data[adv_attr_data["companies"] == node]
+        comments_count = round(adv_attr_data_node["commentsCount"].item(), 4)
+        hits_count = round(adv_attr_data_node["hitsCount"].item(), 4)
+        likes = round(adv_attr_data_node["likes"].item(), 4)
+        if node not in list(comp["companies"]):
+            continue
+        current_dict = ast.literal_eval(
+            list(comp[comp["companies"] == node]["probs_sort"].items())[0][1])
+        try:
+            del current_dict["others"]
+        except KeyError:
+            pass
+        if node == node_selector:
+            main_dict = current_dict
+        # print(key_word)
+        # for key, _ in current_dict.items():
+        #     print(key)
+        #     current_dict[key] = current_dict.pop(key)
+
+        # new_graph.nodes[node]["title"] = repr(current_dict)
+        better_key = max(current_dict.items(), key=lambda x: x[1])[0]
+        try:
+            title = list(key_word[better_key])
+            # title = sample(title, MAX_WORD_IN_TITLE)
+            title = repr(title)
+            title = title + "<br>" + f"Avg Comments: {comments_count}"
+            title = title + "<br>" + f"Avg Hits: {hits_count}"
+            title = title + "<br>" + f"Avg Likes: {comments_count}"
+            # "Посещений в среднем:\n{hits_count}"
+            # "Лайков в среднем:\n{likes}"
+            new_graph.nodes[node]["title"] = title 
+        except IndexError:
+            pass
+    label_from_keys = []
+    for key in main_dict.keys():
+        label_from_keys.append(list(key_word[key]))
+
+    label_from_keys = list(map(lambda x: "\n".join(x), label_from_keys))
+
+    arr = np.random.normal(1, 1, size=100)
+    fig, ax = plt.subplots()
+    ax.bar(label_from_keys, list(main_dict.values()))
+    ax.set_title("Топики")
+    st.sidebar.pyplot(fig)
+    
+    # for key, value in main_dict.items():
+    #     value = round(value, 4)
+    #     st.sidebar.markdown(f"{value}:")
+    #     st.sidebar.markdown(f"{repr(list(key_word[key]))}")
+
+    
+
+    return new_graph
 
 
 def add_adv_attrs(node_selector):
@@ -277,7 +339,9 @@ def tj_baseline(physics=False):
     )
 
     if node_selector != ALL_NODES:
+        graph = add_topic_bars(node_selector, graph)
         graph = choose_node(node_selector, graph)
+        
     # graph = choose_node(node_selector, graph)
 
     for edge in graph.edges():
