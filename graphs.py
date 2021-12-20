@@ -52,7 +52,7 @@ def add_topic_bars(node_selector, new_graph):
     comp = pd.read_csv(TJ_COMP_TOPIC)
     key_word = np.load(TJ_KEY_WORDS)
     adv_attr_data = pd.read_csv(TJ_ADV_ATTR)
-    
+
     for node in new_graph.nodes():
         adv_attr_data_node = adv_attr_data[adv_attr_data["companies"] == node]
         comments_count = round(adv_attr_data_node["commentsCount"].item(), 4)
@@ -84,7 +84,7 @@ def add_topic_bars(node_selector, new_graph):
             title = title + "<br>" + f"Avg Likes: {comments_count}"
             # "Посещений в среднем:\n{hits_count}"
             # "Лайков в среднем:\n{likes}"
-            new_graph.nodes[node]["title"] = title 
+            new_graph.nodes[node]["title"] = title
         except IndexError:
             pass
     label_from_keys = []
@@ -98,13 +98,11 @@ def add_topic_bars(node_selector, new_graph):
     ax.bar(label_from_keys, list(main_dict.values()))
     ax.set_title("Топики")
     st.sidebar.pyplot(fig)
-    
+
     # for key, value in main_dict.items():
     #     value = round(value, 4)
     #     st.sidebar.markdown(f"{value}:")
     #     st.sidebar.markdown(f"{repr(list(key_word[key]))}")
-
-    
 
     return new_graph
 
@@ -130,6 +128,13 @@ def int_to_hex_for_rgb(value):
 def choose_node(node_selector, graph):
     init_sent_data = pd.read_csv(FILEPATH_TO_TJ_SENTIMENT)
     # print(node_selector)
+
+    relevant_nodes = graph.nodes[node_selector]["relevant_nodes"]
+
+    text_rel_nodes = "|".join(relevant_nodes)
+    st.sidebar.markdown("Релевантные ноды:")
+    st.sidebar.markdown(text_rel_nodes)
+
     neutral_value = init_sent_data[init_sent_data["companies"]
                                    == node_selector]["neutral"].item()
     positive_value = init_sent_data[init_sent_data["companies"]
@@ -341,7 +346,7 @@ def tj_baseline(physics=False):
     if node_selector != ALL_NODES:
         graph = add_topic_bars(node_selector, graph)
         graph = choose_node(node_selector, graph)
-        
+
     # graph = choose_node(node_selector, graph)
 
     for edge in graph.edges():
