@@ -162,9 +162,9 @@ def choose_node(node_selector, graph):
     add_adv_attrs(node_selector)
 
     alt_data = pd.DataFrame({
-        "a": labels[1:],
-        "b": sizes_context[1:],
-        "color": ["green", "red"],
+        "a": labels,
+        "b": sizes_context,
+        "color": ["blue", "green", "red"],
     })
     st_alt_data = alt.Chart(alt_data).mark_bar().encode(
         x=alt.X("a", axis=alt.Axis(title="")),
@@ -217,7 +217,7 @@ def normalize_data(data):
 
 def main_statistic():
     st.sidebar.markdown("***")
-    st.sidebar.markdown("**Общая информация о данных.**")
+    st.sidebar.markdown("**Информация о данных.**")
     info_about = pd.DataFrame(
         np.array([[
             17,
@@ -251,7 +251,7 @@ def main_statistic():
                   shadow=True, startangle=90)
 
     ax1_count.axis('equal')
-    st.sidebar.markdown(f"Общие количество файлов: {sum(sizes_count)}")
+    st.sidebar.markdown(f"Общее количество файлов: {sum(sizes_count)}")
     st.sidebar.pyplot(fig1_count)
 
 
