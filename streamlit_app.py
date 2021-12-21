@@ -25,7 +25,7 @@ FILEPATH_TO_VC_BASELINE = "data/vc_posts.gml"
 FILEPATH_TO_DTF_BASELINE = "data/dtf_posts2.gml"
 SIMPLE_EXAMPLE = "Simple example"
 SIMPLE_BASELINE = "Simple baseline"
-TJ_BASELINE = "TJ"
+TJ_BASELINE = "TJournal"
 VC_BASELINE = "VC baseline"
 DTF_BASELINE = "DTF baseline"
 

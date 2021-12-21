@@ -1,6 +1,8 @@
 import ast
 from random import sample
 from math import floor
+from itertools import combinations
+
 from altair.vegalite.v4.api import layer
 
 import networkx as nx
@@ -77,7 +79,7 @@ def add_topic_bars(node_selector, new_graph):
         better_key = max(current_dict.items(), key=lambda x: x[1])[0]
         try:
             title = list(key_word[better_key])
-            # title = sample(title, MAX_WORD_IN_TITLE)
+            title = sample(title, MAX_WORD_IN_TITLE)
             title = repr(title)
             title = title + "<br>" + f"Avg Comments: {comments_count}"
             title = title + "<br>" + f"Avg Hits: {hits_count}"
@@ -110,9 +112,9 @@ def add_topic_bars(node_selector, new_graph):
 def add_adv_attrs(node_selector):
     adv_attr_data = pd.read_csv(TJ_ADV_ATTR)
     adv_attr_data = adv_attr_data[adv_attr_data["companies"] == node_selector]
-    comments_count = round(adv_attr_data["commentsCount"].item(), 4)
-    hits_count = round(adv_attr_data["hitsCount"].item(), 4)
-    likes = round(adv_attr_data["likes"].item(), 4)
+    comments_count = round(adv_attr_data["commentsCount"].item(), 1)
+    hits_count = round(adv_attr_data["hitsCount"].item(), 1)
+    likes = round(adv_attr_data["likes"].item(), 1)
     st.sidebar.markdown(f"Комментов в среднем:\n{comments_count}")
     st.sidebar.markdown(f"Посещений в среднем:\n{hits_count}")
     st.sidebar.markdown(f"Лайков в среднем:\n{likes}")
@@ -131,7 +133,8 @@ def choose_node(node_selector, graph):
 
     relevant_nodes = graph.nodes[node_selector]["relevant_nodes"]
 
-    text_rel_nodes = "|".join(relevant_nodes)
+    # text_rel_nodes = "\n".join(relevant_nodes)
+    text_rel_nodes = relevant_nodes
     st.sidebar.markdown("Релевантные ноды:")
     st.sidebar.markdown(text_rel_nodes)
 
@@ -192,6 +195,10 @@ def choose_node(node_selector, graph):
         new_graph.add_edge(node_selector, node_neighbor)
         for key, value in graph.nodes[node_neighbor].items():
             new_graph.nodes[node_neighbor][key] = value
+    # all_nodes_for_new_graph = [node_selector] + neighbors
+    # for i, j in combinations(all_nodes_for_new_graph, 2):
+    #     if (i, j) in graph.edges() or (j, i) in graph.edges():
+    #         new_graph.add_edge(i, j)
 
     for node in new_graph.nodes():
         new_graph.nodes[node]["size"] = max(new_graph.nodes[node]["size"], 10)
@@ -318,7 +325,7 @@ def tj_baseline(physics=False):
         better_key = max(current_dict.items(), key=lambda x: x[1])[0]
         try:
             title = list(key_word[better_key])
-            # title = sample(title, MAX_WORD_IN_TITLE)
+            title = sample(title, MAX_WORD_IN_TITLE)
             title = repr(title)
             graph.nodes[node]["title"] = title
         except IndexError:
@@ -356,7 +363,7 @@ def tj_baseline(physics=False):
     nt.barnes_hut()
     nt.from_nx(graph)
     if node_selector != ALL_NODES:
-        nt.hrepulsion(central_gravity=2)
+        nt.hrepulsion(central_gravity=0.1)
     if physics:
         nt.show_buttons(filter_=["physics"])
     nt.show("html/tj_baseline.html")
