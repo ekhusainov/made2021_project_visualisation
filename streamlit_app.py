@@ -40,7 +40,7 @@ def main():
             TJ_BASELINE,
             VC_BASELINE,
             DTF_BASELINE,
-            SIMPLE_EXAMPLE,
+            # SIMPLE_EXAMPLE,
         )
     )
 
