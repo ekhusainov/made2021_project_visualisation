@@ -48,7 +48,7 @@ FILEPATH_TO_VC_GRAPH = "data/G_vc_upd_upd.gml"
 # ALL_NODES = "blizzard"
 FILEPATH_TO_VC_SENT = "data/vc_sent.csv"
 FILEPATH_TO_VC_ADV_ATTR = "data/vc_upd_likes.csv"
-
+FILEPATH_TO_DTF_ADV_ATTR = "data/dtf_likes_updated.csv"
 
 def statistic_graph(graph):
     edge_count = len(graph.edges())
@@ -559,11 +559,40 @@ def dtf_baseline(physics=False):
 
 def dtf_graph(physics=False):
     graph = nx.read_gml(FILEPATH_TO_DTF_GRAPH)
-    graph = filter_graph_if_there_topic(graph)
+    graph = filter_graph_if_there_topic(graph, FILEPATH_TO_DTF_ADV_ATTR)
 
+    choose_type = st.sidebar.selectbox(
+        "Выберите тип графа",
+        (
+            GRAPH_CLUSTERS,
+            GRAPH_SENTIMENT,
+        )
+    )
+    graph = basic_visualized_add_color_size(graph)
+    if choose_type == GRAPH_SENTIMENT:
+        graph = add_sentence_adv(graph)
+    elif choose_type == GRAPH_CLUSTERS:
+        for node in graph.nodes():
+            graph.nodes[node]["color"] = graph.nodes[node]["modularity_color"]
     statistic_graph(graph)
+    company_list = list(graph.nodes())
+    node_selector = st.sidebar.selectbox(
+        "Выберите ноду",
+        [ALL_NODES] + list(company_list),
+    )
+
+    if node_selector != ALL_NODES:
+        graph = choose_star_graph(graph, node_selector)
+        graph = add_topic_bars(node_selector, graph, FILEPATH_TO_DTF_ADV_ATTR)
+        add_rel_nodes(graph, node_selector)
+        add_adv_attrs(node_selector, FILEPATH_TO_DTF_ADV_ATTR)
+        add_sent_bar_plot(graph, node_selector)
+
+    # statistic_graph(graph)
     main_statistic()
     nt = Network("800px", "800px", notebook=True, heading="DTF baseline")
+    if node_selector != ALL_NODES:
+        nt.hrepulsion(central_gravity=0.1)
     nt.barnes_hut()
     nt.from_nx(graph)
     if physics:

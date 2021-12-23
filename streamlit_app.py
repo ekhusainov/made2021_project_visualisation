@@ -38,7 +38,7 @@ def main():
     choose_graph = st.sidebar.selectbox(
         "Выберите граф",
         (
-            
+            DTF_BASELINE,
             TJ_BASELINE,
             VC_BASELINE,
             DTF_BASELINE,
