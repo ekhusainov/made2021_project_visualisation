@@ -34,7 +34,7 @@ DTF_BASELINE = "DTF"
 
 def main():
     # st.title("Бета-версия")
-
+    st.sidebar.image("img/logo.png")
     choose_graph = st.sidebar.selectbox(
         "Выберите граф",
         (
