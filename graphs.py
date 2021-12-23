@@ -590,7 +590,7 @@ def dtf_graph(physics=False):
 
     # statistic_graph(graph)
     main_statistic()
-    nt = Network("800px", "800px", notebook=True, heading="DTF baseline")
+    nt = Network("800px", "800px", notebook=True, heading="DTF")
     if node_selector != ALL_NODES:
         nt.hrepulsion(central_gravity=0.1)
     nt.barnes_hut()
