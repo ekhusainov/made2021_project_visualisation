@@ -7,6 +7,8 @@ from altair.vegalite.v4.api import layer
 
 import networkx as nx
 from networkx.algorithms.connectivity.kcutsets import all_node_cuts
+from networkx.classes.function import neighbors
+from networkx.readwrite import gpickle
 import numpy as np
 import pandas as pd
 
@@ -33,6 +35,7 @@ FILEPATH_TO_TJ_SENTIMENT = "data/tj_sent_upd.csv"
 FILEPATH_HTML_TO_TJ_BASELINE = "html/tj_baseline.html"
 FILEPATH_HTML_TO_VC_BASELINE = "html/vc_baseline.html"
 FILEPATH_HTML_TO_DTF_BASELINE = "html/dtf_baseline.html"
+FILEPATH_TO_DTF_GRAPH = "data/dtf_filtered_graph_with_sent_without_likes.gml"
 TJ_COMP_TOPIC = "data/tj_topics_upd.csv"
 TJ_KEY_WORDS = "data/tj_keywords_upd.npy"
 TJ_ADV_ATTR = "data/tj_upd_likes.csv"
@@ -41,7 +44,10 @@ GRAPH_CLUSTERS = "Кластеры"
 GRAPH_SENTIMENT = "Анализ тональности"
 ALL_NODES = "Все ноды"
 PLUS_MINUS = u"\u00B1"
+FILEPATH_TO_VC_GRAPH = "data/G_vc_upd_upd.gml"
 # ALL_NODES = "blizzard"
+FILEPATH_TO_VC_SENT = "data/vc_sent.csv"
+FILEPATH_TO_VC_ADV_ATTR = "data/vc_upd_likes.csv"
 
 
 def statistic_graph(graph):
@@ -51,10 +57,10 @@ def statistic_graph(graph):
     st.sidebar.markdown(f"Количество рёбер: {edge_count}")
 
 
-def add_topic_bars(node_selector, new_graph):
+def add_topic_bars(node_selector, new_graph, adv_attr=TJ_ADV_ATTR):
     comp = pd.read_csv(TJ_COMP_TOPIC)
     key_word = np.load(TJ_KEY_WORDS)
-    adv_attr_data = pd.read_csv(TJ_ADV_ATTR)
+    adv_attr_data = pd.read_csv(adv_attr)
 
     for node in new_graph.nodes():
         adv_attr_data_node = adv_attr_data[adv_attr_data["companies"] == node]
@@ -71,12 +77,6 @@ def add_topic_bars(node_selector, new_graph):
             pass
         if node == node_selector:
             main_dict = current_dict
-        # print(key_word)
-        # for key, _ in current_dict.items():
-        #     print(key)
-        #     current_dict[key] = current_dict.pop(key)
-
-        # new_graph.nodes[node]["title"] = repr(current_dict)
         better_key = max(current_dict.items(), key=lambda x: x[1])[0]
         try:
             title = list(key_word[better_key])
@@ -85,8 +85,6 @@ def add_topic_bars(node_selector, new_graph):
             title = title + "<br>" + f"Avg Comments: {comments_count}"
             title = title + "<br>" + f"Avg Hits: {hits_count}"
             title = title + "<br>" + f"Avg Likes: {likes}"
-            # "Посещений в среднем:\n{hits_count}"
-            # "Лайков в среднем:\n{likes}"
             new_graph.nodes[node]["title"] = title
         except IndexError:
             pass
@@ -102,16 +100,11 @@ def add_topic_bars(node_selector, new_graph):
     ax.set_title("Топики")
     st.sidebar.pyplot(fig)
 
-    # for key, value in main_dict.items():
-    #     value = round(value, 4)
-    #     st.sidebar.markdown(f"{value}:")
-    #     st.sidebar.markdown(f"{repr(list(key_word[key]))}")
-
     return new_graph
 
 
-def add_adv_attrs(node_selector):
-    adv_attr_data = pd.read_csv(TJ_ADV_ATTR)
+def add_adv_attrs(node_selector, adv_attrs=TJ_ADV_ATTR):
+    adv_attr_data = pd.read_csv(adv_attrs)
 
     mean_comments_count = round(adv_attr_data["commentsCount"].mean(), 2)
     std_comments_count = round(sqrt(adv_attr_data["commentsCount"].std()), 2)
@@ -124,7 +117,7 @@ def add_adv_attrs(node_selector):
     comments_count = round(adv_attr_data["commentsCount"].item(), 1)
     hits_count = round(adv_attr_data["hitsCount"].item(), 1)
     likes = round(adv_attr_data["likes"].item(), 1)
-    
+
     st.sidebar.markdown("***")
     st.sidebar.markdown(
         f"Комментов в среднем:\n{comments_count} для {node_selector}")
@@ -151,11 +144,8 @@ def int_to_hex_for_rgb(value):
 
 def choose_node(node_selector, graph):
     init_sent_data = pd.read_csv(FILEPATH_TO_TJ_SENTIMENT)
-    # print(node_selector)
-
     relevant_nodes = graph.nodes[node_selector]["relevant_nodes"]
 
-    # text_rel_nodes = "\n".join(relevant_nodes)
     text_rel_nodes = relevant_nodes
     st.sidebar.markdown("Релевантные ноды:")
     st.sidebar.markdown(text_rel_nodes)
@@ -170,16 +160,6 @@ def choose_node(node_selector, graph):
     labels = ["neutral", "positive", "negative"]
 
     sizes_context = [neutral_value, positive_value, negative_value]
-    # st.sidebar.markdown(repr(sizes_context))
-
-    # chart_data = pd.DataFrame(
-    #     np.array([
-    #         [1, 0, 0],
-    #         [0, 2, 0],
-    #         [0, 0, 3],
-    #     ]),
-    #     columns=["a", "b", "c"],
-    # )
 
     add_adv_attrs(node_selector)
 
@@ -197,16 +177,6 @@ def choose_node(node_selector, graph):
     )
     st.sidebar.altair_chart(st_alt_data, use_container_width=True)
 
-    # st.sidebar.bar_chart(chart_data)
-
-    # explode = (0, 0.1, 0)
-
-    # fig1, ax1 = plt.subplots()
-    # ax1.pie(sizes_context, explode=explode, labels=labels, autopct='%1.1f%%',
-    #         shadow=True, startangle=90, colors=["blue", "green", "red"])
-    # ax1.axis('equal')
-    # st.sidebar.pyplot(fig1)
-
     new_graph = nx.Graph()
     new_graph.add_node(node_selector)
     neighbors = [i for i in graph.neighbors(node_selector)]
@@ -217,10 +187,6 @@ def choose_node(node_selector, graph):
         new_graph.add_edge(node_selector, node_neighbor)
         for key, value in graph.nodes[node_neighbor].items():
             new_graph.nodes[node_neighbor][key] = value
-    # all_nodes_for_new_graph = [node_selector] + neighbors
-    # for i, j in combinations(all_nodes_for_new_graph, 2):
-    #     if (i, j) in graph.edges() or (j, i) in graph.edges():
-    #         new_graph.add_edge(i, j)
 
     for node in new_graph.nodes():
         new_graph.nodes[node]["size"] = max(new_graph.nodes[node]["size"], 10)
@@ -354,10 +320,7 @@ def tj_baseline(physics=False):
             pass
     #
     for node in graph.nodes():
-        # graph.nodes[node]["size"] = max(
-        #     5, graph.nodes[node]["adjusted_node_size"] / 5)
         graph.nodes[node]["size"] = graph.nodes[node]["adjusted_node_size"]
-        # graph.nodes[node]["color"] = graph.nodes[node]["modularity_color"]
 
     sent_data = pd.read_csv(FILEPATH_TO_TJ_SENTIMENT)
     if choose_type == GRAPH_SENTIMENT:
@@ -376,8 +339,6 @@ def tj_baseline(physics=False):
         graph = add_topic_bars(node_selector, graph)
         graph = choose_node(node_selector, graph)
 
-    # graph = choose_node(node_selector, graph)
-
     for edge in graph.edges():
         graph.edges[edge]["color"] = "#B2B2B2"
 
@@ -390,20 +351,6 @@ def tj_baseline(physics=False):
         nt.show_buttons(filter_=["physics"])
     nt.show("html/tj_baseline.html")
 
-    # current_dict = ast.literal_eval(
-    #     list(comp[comp["companies"] == node_selector]["probs"].items())[0][1])
-    # st.title(repr(current_dict))
-    # fig = px.bar(
-    #     list(current_dict.values()),
-    #     # hovertemplate=key_word[list(current_dict.keys())],
-    #     # labels=["1", "2"]
-    #     hoverlabel = key_word[list(current_dict.keys())]
-    # )
-    # hover_data = key_word[list(current_dict.keys())]
-    # fig.update_traces(hovertemplate=None)
-
-    # # fig.update_layout(hovertemplate="")
-    # st.plotly_chart(fig)
     main_statistic()
 
 
@@ -419,8 +366,201 @@ def vc_baseline(physics=False):
     nt.show("html/vc_baseline.html")
 
 
+def filter_graph_if_there_topic(graph, adv_attrs=FILEPATH_TO_VC_ADV_ATTR):
+    data_topics = pd.read_csv(TJ_COMP_TOPIC)
+    comp_list = list(data_topics["companies"])
+    nodes_for_delete = []
+    for node in graph.nodes():
+        if node not in comp_list:
+            nodes_for_delete.append(node)
+    nodes_for_delete = sorted(nodes_for_delete, reverse=True)
+    for node in nodes_for_delete:
+        graph.remove_node(node)
+    adv_attrs = pd.read_csv(adv_attrs)
+    comp_list = list(adv_attrs["companies"])
+    nodes_for_delete = []
+    for node in graph.nodes():
+        if node not in comp_list:
+            nodes_for_delete.append(node)
+    nodes_for_delete = sorted(nodes_for_delete, reverse=True)
+    for node in nodes_for_delete:
+        graph.remove_node(node)
+    return graph
+
+
+def basic_visualized_add_color_size(graph):
+    comp = pd.read_csv(TJ_COMP_TOPIC)
+    key_word = np.load(TJ_KEY_WORDS)
+    for node in graph.nodes():
+        graph.nodes[node]["font_size"] = 80
+        current_dict = ast.literal_eval(
+            list(comp[comp["companies"] == node]["probs_sort"].items())[0][1]
+        )
+        try:
+            del current_dict["others"]
+        except KeyError:
+            pass
+        better_key = max(current_dict.items(), key=lambda x: x[1])[0]
+        try:
+            title = list(key_word[better_key])
+            title = sample(title, MAX_WORD_IN_TITLE)
+            title = repr(title)
+            graph.nodes[node]["title"] = title
+        except IndexError:
+            pass
+    for node in graph.nodes():
+        graph.nodes[node]["size"] = graph.nodes[node]["adjusted_node_size"]
+    # for edge in graph.edges():
+    #     graph.edges[edge]["color"] = "#B2B2B2"
+    return graph
+
+
+def add_sentence_adv(graph):
+    neutral_list = []
+    negative_list = []
+    positive_list = []
+    for node in graph.nodes():
+        neutral = graph.nodes[node]["neutral"]
+        negative = graph.nodes[node]["negative"]
+        positive = graph.nodes[node]["positive"]
+        neutral_list.append(neutral)
+        negative_list.append(negative)
+        positive_list.append(positive)
+    neutral_list = np.array(neutral_list)
+    negative_list = np.array(negative_list)
+    positive_list = np.array(positive_list)
+    neutral_list = (neutral_list - neutral_list.mean()) / neutral_list.std()
+    negative_list = (negative_list - negative_list.mean()) / \
+        negative_list.std()
+    positive_list = (positive_list - positive_list.mean()) / \
+        positive_list.std()
+
+    for idx, node in enumerate(graph.nodes()):
+        neutral = neutral_list[idx]  # graph.nodes[node]["neutral"]
+        negative = negative_list[idx]  # graph.nodes[node]["negative"]
+        positive = positive_list[idx]  # graph.nodes[node]["positive"]
+        try:
+            new_red = floor(negative / (negative + positive) * 255)
+            new_green = 255 - new_red
+            new_blue = 0
+            new_rgb_color = "#" + \
+                int_to_hex_for_rgb(
+                    new_red) + int_to_hex_for_rgb(new_green) + int_to_hex_for_rgb(new_blue)
+            graph.nodes[node]["color"] = new_rgb_color
+        except (ValueError, ZeroDivisionError):
+            graph.nodes[node]["color"] = "#0000ff"
+
+    return graph
+
+
+def choose_star_graph(graph, node_selector):
+    star_graph = nx.Graph()
+    star_graph.add_node(node_selector)
+    neighbors = [i for i in graph.neighbors(node_selector)]
+    for key, value in graph.nodes[node_selector].items():
+        star_graph.nodes[node_selector][key] = value
+    for node_neighbor in neighbors:
+        star_graph.add_node(node_neighbor)
+        star_graph.add_edge(node_selector, node_neighbor)
+        for key, value in graph.nodes[node_neighbor].items():
+            star_graph.nodes[node_neighbor][key] = value
+    for node in star_graph.nodes():
+        star_graph.nodes[node]["size"] = max(
+            star_graph.nodes[node]["size"], 10)
+    for edge in star_graph.edges():
+        star_graph.edges[edge]["color"] = "#B2B2B2"
+    return star_graph
+
+
+def add_sent_bar_plot(graph, node_selector):
+    neutral_value = graph.nodes[node_selector]["neutral"]
+    positive_value = graph.nodes[node_selector]["positive"]
+    negative_value = graph.nodes[node_selector]["negative"]
+    labels = ["neutral", "positive", "negative"]
+    sizes_context = [neutral_value, positive_value, negative_value]
+    alt_data = pd.DataFrame({
+        "a": labels,
+        "b": sizes_context,
+        "color": ["blue", "green", "red"],
+    })
+    st_alt_data = alt.Chart(alt_data).mark_bar().encode(
+        x=alt.X("a", axis=alt.Axis(title="")),
+        y=alt.X("b", axis=alt.Axis(title="")),
+        color=alt.Color("color", scale=None),
+    ).properties(
+        title="Окрас",
+    )
+    st.sidebar.altair_chart(st_alt_data, use_container_width=True)
+
+
+def add_rel_nodes(graph, node_selector):
+    relevant_nodes = graph.nodes[node_selector]["relevant_nodes"]
+    st.sidebar.markdown("Релевантные ноды:")
+    st.sidebar.markdown(relevant_nodes)
+
+
+def vc_graph(physics=False):
+    graph = nx.read_gml(FILEPATH_TO_VC_GRAPH)
+    graph = filter_graph_if_there_topic(graph, FILEPATH_TO_VC_ADV_ATTR)
+
+    choose_type = st.sidebar.selectbox(
+        "Выберите тип графа",
+        (
+            GRAPH_CLUSTERS,
+            GRAPH_SENTIMENT,
+        )
+    )
+    graph = basic_visualized_add_color_size(graph)
+    if choose_type == GRAPH_SENTIMENT:
+        graph = add_sentence_adv(graph)
+    elif choose_type == GRAPH_CLUSTERS:
+        for node in graph.nodes():
+            graph.nodes[node]["color"] = graph.nodes[node]["modularity_color"]
+    statistic_graph(graph)
+
+    company_list = list(graph.nodes())
+    node_selector = st.sidebar.selectbox(
+        "Выберите ноду",
+        [ALL_NODES] + list(company_list),
+    )
+
+    if node_selector != ALL_NODES:
+        graph = choose_star_graph(graph, node_selector)
+        graph = add_topic_bars(node_selector, graph, FILEPATH_TO_VC_ADV_ATTR)
+        add_rel_nodes(graph, node_selector)
+        add_adv_attrs(node_selector, FILEPATH_TO_VC_ADV_ATTR)
+        add_sent_bar_plot(graph, node_selector)
+
+    #
+
+    main_statistic()
+    nt = Network("800px", "800px", notebook=True, heading="VC.RU")
+    if node_selector != ALL_NODES:
+        nt.hrepulsion(central_gravity=0.1)
+    nt.barnes_hut()
+
+    nt.from_nx(graph)
+    if physics:
+        nt.show_buttons(filter_=["physics"])
+    nt.show("html/vc_baseline.html")
+
+
 def dtf_baseline(physics=False):
     graph = nx.read_gml(FILEPATH_TO_DTF_BASELINE)
+    statistic_graph(graph)
+    main_statistic()
+    nt = Network("800px", "800px", notebook=True, heading="DTF baseline")
+    nt.barnes_hut()
+    nt.from_nx(graph)
+    if physics:
+        nt.show_buttons(filter_=["physics"])
+    nt.show(FILEPATH_HTML_TO_DTF_BASELINE)
+
+
+def dtf_graph(physics=False):
+    graph = nx.read_gml(FILEPATH_TO_DTF_GRAPH)
+    graph = filter_graph_if_there_topic(graph)
+
     statistic_graph(graph)
     main_statistic()
     nt = Network("800px", "800px", notebook=True, heading="DTF baseline")

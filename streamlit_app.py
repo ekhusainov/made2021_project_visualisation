@@ -7,6 +7,8 @@ from graphs import (
     tj_baseline,
     vc_baseline,
     dtf_baseline,
+    vc_graph,
+    dtf_graph,
 )
 import streamlit.components.v1 as components
 import streamlit as st
@@ -26,8 +28,8 @@ FILEPATH_TO_DTF_BASELINE = "data/dtf_posts2.gml"
 SIMPLE_EXAMPLE = "Simple example"
 SIMPLE_BASELINE = "Simple baseline"
 TJ_BASELINE = "TJournal"
-VC_BASELINE = "VC baseline"
-DTF_BASELINE = "DTF baseline"
+VC_BASELINE = "VC.RU"
+DTF_BASELINE = "DTF"
 
 
 def main():
@@ -36,9 +38,9 @@ def main():
     choose_graph = st.sidebar.selectbox(
         "Выберите граф",
         (
-            
-            TJ_BASELINE,
             VC_BASELINE,
+            TJ_BASELINE,
+            
             DTF_BASELINE,
             # SIMPLE_EXAMPLE,
         )
@@ -53,7 +55,8 @@ def main():
         components.html(source_code, height=900, width=900)
 
     elif choose_graph == VC_BASELINE:
-        vc_baseline()
+        # vc_baseline()
+        vc_graph()
         with open(FILEPATH_HTML_TO_VC_BASELINE, "r", encoding="utf-8") as file:
             source_code = file.read()
         components.html(source_code, height=900, width=900)
@@ -65,7 +68,8 @@ def main():
         components.html(source_code, height=900, width=900)
 
     elif choose_graph == DTF_BASELINE:
-        dtf_baseline()
+        # dtf_baseline()
+        dtf_graph()
         with open(FILEPATH_HTML_TO_DTF_BASELINE, "r", encoding="utf-8") as file:
             source_code = file.read()
         components.html(source_code, height=900, width=900)
