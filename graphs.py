@@ -1,6 +1,6 @@
 import ast
 from random import sample
-from math import floor
+from math import floor, sqrt
 from itertools import combinations
 
 from altair.vegalite.v4.api import layer
@@ -40,6 +40,7 @@ MAX_WORD_IN_TITLE = 6
 GRAPH_CLUSTERS = "Кластеры"
 GRAPH_SENTIMENT = "Анализ тональности"
 ALL_NODES = "Все ноды"
+PLUS_MINUS = u"\u00B1"
 # ALL_NODES = "blizzard"
 
 
@@ -83,7 +84,7 @@ def add_topic_bars(node_selector, new_graph):
             title = repr(title)
             title = title + "<br>" + f"Avg Comments: {comments_count}"
             title = title + "<br>" + f"Avg Hits: {hits_count}"
-            title = title + "<br>" + f"Avg Likes: {comments_count}"
+            title = title + "<br>" + f"Avg Likes: {likes}"
             # "Посещений в среднем:\n{hits_count}"
             # "Лайков в среднем:\n{likes}"
             new_graph.nodes[node]["title"] = title
@@ -111,13 +112,34 @@ def add_topic_bars(node_selector, new_graph):
 
 def add_adv_attrs(node_selector):
     adv_attr_data = pd.read_csv(TJ_ADV_ATTR)
+
+    mean_comments_count = round(adv_attr_data["commentsCount"].mean(), 2)
+    std_comments_count = round(sqrt(adv_attr_data["commentsCount"].std()), 2)
+    mean_hit_count = round(adv_attr_data["hitsCount"].mean(), 2)
+    std_hit_count = round(sqrt(adv_attr_data["hitsCount"].std()), 2)
+    mean_likes = round(adv_attr_data["likes"].mean(), 2)
+    std_likes = round(sqrt(adv_attr_data["likes"].std()), 2)
+
     adv_attr_data = adv_attr_data[adv_attr_data["companies"] == node_selector]
     comments_count = round(adv_attr_data["commentsCount"].item(), 1)
     hits_count = round(adv_attr_data["hitsCount"].item(), 1)
     likes = round(adv_attr_data["likes"].item(), 1)
-    st.sidebar.markdown(f"Комментов в среднем:\n{comments_count}")
-    st.sidebar.markdown(f"Посещений в среднем:\n{hits_count}")
-    st.sidebar.markdown(f"Лайков в среднем:\n{likes}")
+    
+    st.sidebar.markdown("***")
+    st.sidebar.markdown(
+        f"Комментов в среднем:\n{comments_count} для {node_selector}")
+    st.sidebar.markdown(
+        f"При {mean_comments_count} {PLUS_MINUS} {std_comments_count} для всех нод.")
+    st.sidebar.markdown("***")
+    st.sidebar.markdown(
+        f"Посещений в среднем:\n{hits_count} для {node_selector}")
+    st.sidebar.markdown(
+        f"При {mean_hit_count} {PLUS_MINUS} {std_hit_count} для всех нод.")
+    st.sidebar.markdown("***")
+    st.sidebar.markdown(f"Лайков в среднем:\n{likes} для {node_selector}")
+    st.sidebar.markdown(
+        f"При {mean_likes} {PLUS_MINUS} {std_likes} для всех нод.")
+    st.sidebar.markdown("***")
 
 
 def int_to_hex_for_rgb(value):
